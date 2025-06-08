@@ -42,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 //		categories.add(category);
 //		return new ResponseEntity<>(category, HttpStatus.CREATED);
 
+		//duplicate categories not allowed!.
 		boolean status = categoryRepository.findAll().stream()
 				.anyMatch(c -> c.getCategoryName().equals(category.getCategoryName()));
 		
