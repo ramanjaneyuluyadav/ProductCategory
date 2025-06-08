@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.ecommerce.project.Entity.Category;
 
+//loose coupling
 public interface CategoryService {
 
 	ResponseEntity<List<Category>> getAllCategories();
