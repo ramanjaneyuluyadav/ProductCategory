@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public ResponseEntity<Category> createCategories(Category category) {
+	public ResponseEntity<?> createCategories(Category category) {
 
 //      category.setCategoryId(categoryId++);
 
@@ -42,8 +42,16 @@ public class CategoryServiceImpl implements CategoryService {
 //		categories.add(category);
 //		return new ResponseEntity<>(category, HttpStatus.CREATED);
 
-		// though the repository
-		return new ResponseEntity<>(categoryRepository.save(category), HttpStatus.CREATED);
+		boolean status = categoryRepository.findAll().stream()
+				.anyMatch(c -> c.getCategoryName().equals(category.getCategoryName()));
+		
+		if(status) {
+			// though the repository
+			return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body("Category already exist!..");
+		}else {
+			return new ResponseEntity<>(categoryRepository.save(category), HttpStatus.CREATED);
+		}
+
 	}
 
 	@Override
