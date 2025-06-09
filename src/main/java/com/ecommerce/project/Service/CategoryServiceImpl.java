@@ -1,6 +1,5 @@
 package com.ecommerce.project.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -42,16 +41,17 @@ public class CategoryServiceImpl implements CategoryService {
 //		categories.add(category);
 //		return new ResponseEntity<>(category, HttpStatus.CREATED);
 
-		//duplicate categories not allowed!.
-		boolean status = categoryRepository.findAll().stream()
-				.anyMatch(c -> c.getCategoryName().equals(category.getCategoryName()));
-		
-		if(status) {
-			// though the repository
-			return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body("Category already exist!..");
-		}else {
-			return new ResponseEntity<>(categoryRepository.save(category), HttpStatus.CREATED);
+		// Check for duplicate category name
+		boolean exists = categoryRepository.findAll().stream()
+				.anyMatch(c -> c.getCategoryName().equalsIgnoreCase(category.getCategoryName()));
+
+		if (exists) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Category already exists!");
 		}
+
+		Category savedCategory = categoryRepository.save(category);
+
+		return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
 
 	}
 
@@ -66,10 +66,16 @@ public class CategoryServiceImpl implements CategoryService {
 		Optional<Category> categoryOpt = categories.stream().filter(c -> c.getCategoryId() == categoryId).findFirst();
 
 		if (categoryOpt.isPresent()) {
+			boolean exist = categories.stream()
+					.anyMatch(n -> n.getCategoryName().equalsIgnoreCase(category.getCategoryName()));
+			if (exist) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("Category name already exists! please choose another name...");
+			}
 
 			Category categoryObj = categoryOpt.get();
 			// int index = categories.indexOf(categoryObj);
 			categoryObj.setCategoryName(category.getCategoryName());
+			categoryObj.setProducts(category.getProducts());
 
 			// categories.set(index, categoryObj);
 
@@ -94,13 +100,25 @@ public class CategoryServiceImpl implements CategoryService {
 			Category category = categories.stream().filter(c -> c.getCategoryId() == categoryId).findFirst()
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
-//          categories.remove(category);
-
 			categoryRepository.delete(category);
 			return ResponseEntity.status(HttpStatus.OK)
 					.body("Category with categoryId " + categoryId + " deleted successfully");
 		} catch (ResponseStatusException e) {
 			return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
 		}
+	}
+
+	// getByCategoryId
+	@Override
+	public ResponseEntity<?> getByCategoryIdAlongWithProducts(long CategoryId) {
+
+		try {
+			Category category = categoryRepository.findById(CategoryId)
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+			return new ResponseEntity<>(category, HttpStatus.OK);
+		} catch (ResponseStatusException e) {
+			return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+		}
+
 	}
 }
