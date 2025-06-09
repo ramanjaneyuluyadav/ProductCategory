@@ -49,5 +49,10 @@ public class CategoryController {
 	public ResponseEntity<String> deleteCategories(@PathVariable long categoryId) {
 		return categoryservice.deleteCategories(categoryId);
 	}
+	
+	@GetMapping("/public/categories/{categoryId}")
+	public ResponseEntity<?> getByCategoryId(@PathVariable long categoryId) {
+		return categoryservice.getByCategoryIdAlongWithProducts(categoryId);
+	}
 
 }

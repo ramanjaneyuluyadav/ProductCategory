@@ -15,6 +15,8 @@ public interface CategoryService {
 	ResponseEntity<String> updateCategories(Category category, long categoryId);
 	
 	ResponseEntity<String> deleteCategories(long categoryId);
+	
+	ResponseEntity<?> getByCategoryIdAlongWithProducts(long CategoryId);
   
 	
 }
